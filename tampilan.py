@@ -78,9 +78,8 @@ if uploaded_scaler is not None:
                 st.write(result_df)
 
                 # Visualisasi Prediksi
-                st.subheader('Visualisasi Prediksi dan Data Aktual')
+                st.subheader('Visualisasi Prediksi Harga XAU/USD')
                 plt.figure(figsize=(14, 7))
-                plt.plot(df.index, df['Price'], color='blue', label='Harga Aktual')
                 plt.plot(result_df['Date'], result_df['Prediksi (Price)'], color='orange', label='Prediksi Harga')
                 plt.title('Prediksi Harga XAU/USD (10 Hari ke Depan)', fontsize=20)
                 plt.xlabel('Tanggal', fontsize=16)
