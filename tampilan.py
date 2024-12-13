@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import load_model
 from datetime import timedelta
+import pickle
 
 # Load model dan scaler
 model = load_model('model_lstm.h5')  # Gantilah dengan nama model Anda
