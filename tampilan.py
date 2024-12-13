@@ -1,11 +1,10 @@
-import streamlit as st
+import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import load_model
 from datetime import timedelta
-import pickle
+import streamlit as st
 
 # Load model dan scaler
 model = load_model('model_lstm.h5')  # Gantilah dengan nama model Anda
@@ -71,4 +70,3 @@ if uploaded_file is not None:
     plt.grid(True)
     
     st.pyplot(plt)
-
