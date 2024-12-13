@@ -51,14 +51,15 @@ if uploaded_scaler is not None:
 
         # Pastikan kolom 'Price' ada dan tidak kosong
         if 'Price' in df.columns and not df['Price'].isnull().all():
-            # Memastikan data tidak mengandung NaN atau Inf
-            price_data = df['Price'].values.reshape(-1, 1)
+            # Pastikan data 'Price' adalah numerik
+            price_data = pd.to_numeric(df['Price'], errors='coerce')  # Mengubah menjadi numerik dan ganti yang error menjadi NaN
 
-            # Cek apakah ada nilai NaN atau Inf
+            # Memastikan tidak ada nilai NaN atau Inf
             if np.any(np.isnan(price_data)) or np.any(np.isinf(price_data)):
                 st.error("Data harga mengandung nilai NaN atau Inf. Harap periksa data Anda.")
             else:
                 # Transformasikan data harga
+                price_data = price_data.values.reshape(-1, 1)
                 scaled_data = scaler.transform(price_data)
 
                 # Prediksi harga 10 hari ke depan
