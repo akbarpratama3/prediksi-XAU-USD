@@ -70,10 +70,13 @@ if uploaded_scaler is not None:
                 future_dates = [start_date + timedelta(days=i) for i in range(1, 11)]
                 
                 result_df = pd.DataFrame({
-                    'Date': [date.strftime('%Y-%m-%d') for date in future_dates],
+                    'Date': future_dates,
                     'Prediksi (Price)': predictions.flatten()
                 })
-                
+
+                # Pastikan 'Date' di result_df adalah dalam format datetime
+                result_df['Date'] = pd.to_datetime(result_df['Date'])
+
                 st.write("Prediksi Harga XAU/USD 10 Hari Ke Depan:")
                 st.write(result_df)
 
@@ -87,7 +90,7 @@ if uploaded_scaler is not None:
                 plt.ylabel('Harga XAU/USD', fontsize=16)
                 plt.legend(fontsize=14)
                 plt.grid(True)
-                
+
                 st.pyplot(plt)
         else:
             st.error("Kolom 'Price' tidak ditemukan atau data 'Price' kosong.")
