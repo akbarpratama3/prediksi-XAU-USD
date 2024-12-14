@@ -50,31 +50,16 @@ if uploaded_scaler is not None:
         st.write(df.tail())
 
         # Pastikan kolom 'Price' ada dan tidak kosong
-        if 'Price' in df.columns:
-            # Mengganti NaN dan Inf dengan rata-rata dari kolom 'Price'
-            df['Price'] = pd.to_numeric(df['Price'], errors='coerce')  # Konversi ke numerik, 'coerce' akan ganti error jadi NaN
-            
-            # Cek data NaN dan Inf
-            if df['Price'].isnull().any():
-                st.write("Data harga yang mengandung nilai NaN:")
-                st.write(df[df['Price'].isnull()])
+        if 'Price' in df.columns and not df['Price'].isnull().all():
+            # Pastikan data 'Price' adalah numerik
+            price_data = pd.to_numeric(df['Price'], errors='coerce')  # Mengubah menjadi numerik dan ganti yang error menjadi NaN
 
-            if np.isinf(df['Price']).any():
-                st.write("Data harga yang mengandung nilai Inf:")
-                st.write(df[np.isinf(df['Price'])])
-
-            # Ganti NaN dengan rata-rata
-            df['Price'].fillna(df['Price'].mean(), inplace=True)  # Ganti NaN dengan rata-rata
-            # Ganti Inf dengan rata-rata
-            df['Price'] = np.where(np.isinf(df['Price']), df['Price'].mean(), df['Price'])
-
-            # Memastikan tidak ada nilai NaN atau Inf setelah pembersihan
-            price_data = df['Price'].values.reshape(-1, 1)
-
+            # Memastikan tidak ada nilai NaN atau Inf
             if np.any(np.isnan(price_data)) or np.any(np.isinf(price_data)):
-                st.error("Data harga masih mengandung nilai NaN atau Inf setelah pembersihan.")
+                st.error("Data harga mengandung nilai NaN atau Inf. Harap periksa data Anda.")
             else:
                 # Transformasikan data harga
+                price_data = price_data.values.reshape(-1, 1)
                 scaled_data = scaler.transform(price_data)
 
                 # Prediksi harga 10 hari ke depan
