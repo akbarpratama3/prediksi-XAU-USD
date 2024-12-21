@@ -10,13 +10,13 @@ import streamlit as st
 model = load_model('model_lstm.h5')  # Gantilah dengan nama model Anda
 
 # Fungsi untuk melakukan prediksi harga XAU/USD
-def predict_price(data, model, scaler):
+def predict_price(data, model, scaler, prediction_days):
     # Ambil 60 data terakhir
     last_60_days = data[-60:].reshape((1, 60, 1))
     
-    # Prediksi harga untuk 10 hari ke depan
+    # Prediksi harga untuk sejumlah hari ke depan
     predictions = []
-    for _ in range(10):
+    for _ in range(prediction_days):
         pred = model.predict(last_60_days)
         predictions.append(pred[0, 0])
         last_60_days = np.append(last_60_days[:, 1:, :], pred.reshape(1, 1, 1), axis=1)
@@ -62,29 +62,32 @@ if uploaded_scaler is not None:
                 price_data = price_data.values.reshape(-1, 1)
                 scaled_data = scaler.transform(price_data)
 
-                # Memilih tanggal awal prediksi
-                st.subheader("Pilih Tanggal Awal Prediksi")
-                start_date = st.date_input(
-                    "Tanggal awal prediksi harus berada dalam rentang data.",
-                    min_value=df.index.min(),
-                    max_value=df.index.max()
+                # Input untuk jumlah hari prediksi
+                st.subheader("Masukkan Jumlah Hari Prediksi")
+                prediction_days = st.number_input(
+                    "Jumlah hari untuk prediksi:",
+                    min_value=1,
+                    max_value=30,
+                    value=10,
+                    step=1
                 )
 
-                if start_date not in df.index:
-                    st.error("Tanggal awal tidak valid. Pastikan tanggal berada dalam rentang data yang tersedia.")
-                else:
-                    # Prediksi harga 10 hari ke depan
-                    predictions = predict_price(scaled_data, model, scaler)
+                # Tombol untuk memulai prediksi
+                if st.button("Lakukan Prediksi"):
+                    # Prediksi harga sejumlah hari ke depan
+                    predictions = predict_price(scaled_data, model, scaler, prediction_days)
                     
                     # Tentukan tanggal hasil prediksi
-                    future_dates = [start_date + timedelta(days=i) for i in range(1, 11)]
+                    start_date = df.index[-1]  # Tanggal terakhir dalam data
+                    future_dates = [start_date + timedelta(days=i) for i in range(1, prediction_days + 1)]
                     
                     result_df = pd.DataFrame({
                         'Date': future_dates,
                         'Prediksi (Price)': predictions.flatten()
                     })
 
-                    st.write("Prediksi Harga XAU/USD 10 Hari Ke Depan:")
+                    # Tampilkan hasil prediksi
+                    st.write(f"Prediksi Harga XAU/USD {prediction_days} Hari Ke Depan:")
                     st.write(result_df)
 
                     # Visualisasi Prediksi
@@ -92,7 +95,7 @@ if uploaded_scaler is not None:
                     plt.figure(figsize=(14, 7))
                     plt.plot(df.index, df['Price'], color='blue', label='Harga Aktual')
                     plt.plot(result_df['Date'], result_df['Prediksi (Price)'], color='orange', label='Prediksi Harga')
-                    plt.title('Prediksi Harga XAU/USD (10 Hari ke Depan)', fontsize=20)
+                    plt.title(f'Prediksi Harga XAU/USD ({prediction_days} Hari ke Depan)', fontsize=20)
                     plt.xlabel('Tanggal', fontsize=16)
                     plt.ylabel('Harga XAU/USD', fontsize=16)
                     plt.legend(fontsize=14)
