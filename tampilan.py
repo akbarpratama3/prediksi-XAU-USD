@@ -62,35 +62,42 @@ if uploaded_scaler is not None:
                 price_data = price_data.values.reshape(-1, 1)
                 scaled_data = scaler.transform(price_data)
 
-                # Prediksi harga 10 hari ke depan
-                predictions = predict_price(scaled_data, model, scaler)
-                
-                # Tampilkan hasil prediksi
-                start_date = df.index[-1]  # Tanggal terakhir dalam data
-                future_dates = [start_date + timedelta(days=i) for i in range(1, 11)]
-                
-                result_df = pd.DataFrame({
-                    'Date': future_dates,
-                    'Prediksi (Price)': predictions.flatten()
-                })
+                # Memilih tanggal awal prediksi
+                st.subheader("Pilih Tanggal Awal Prediksi")
+                start_date = st.date_input(
+                    "Tanggal awal prediksi harus berada dalam rentang data.",
+                    min_value=df.index.min(),
+                    max_value=df.index.max()
+                )
 
-                # Pastikan 'Date' di result_df adalah dalam format datetime
-                result_df['Date'] = pd.to_datetime(result_df['Date'])
+                if start_date not in df.index:
+                    st.error("Tanggal awal tidak valid. Pastikan tanggal berada dalam rentang data yang tersedia.")
+                else:
+                    # Prediksi harga 10 hari ke depan
+                    predictions = predict_price(scaled_data, model, scaler)
+                    
+                    # Tentukan tanggal hasil prediksi
+                    future_dates = [start_date + timedelta(days=i) for i in range(1, 11)]
+                    
+                    result_df = pd.DataFrame({
+                        'Date': future_dates,
+                        'Prediksi (Price)': predictions.flatten()
+                    })
 
-                st.write("Prediksi Harga XAU/USD 10 Hari Ke Depan:")
-                st.write(result_df)
+                    st.write("Prediksi Harga XAU/USD 10 Hari Ke Depan:")
+                    st.write(result_df)
 
-                # Visualisasi Prediksi
-                st.subheader('Visualisasi Prediksi dan Data Aktual')
-                plt.figure(figsize=(14, 7))
-                plt.plot(df.index, df['Price'], color='blue', label='Harga Aktual')
-                plt.plot(result_df['Date'], result_df['Prediksi (Price)'], color='orange', label='Prediksi Harga')
-                plt.title('Prediksi Harga XAU/USD (10 Hari ke Depan)', fontsize=20)
-                plt.xlabel('Tanggal', fontsize=16)
-                plt.ylabel('Harga XAU/USD', fontsize=16)
-                plt.legend(fontsize=14)
-                plt.grid(True)
+                    # Visualisasi Prediksi
+                    st.subheader('Visualisasi Prediksi dan Data Aktual')
+                    plt.figure(figsize=(14, 7))
+                    plt.plot(df.index, df['Price'], color='blue', label='Harga Aktual')
+                    plt.plot(result_df['Date'], result_df['Prediksi (Price)'], color='orange', label='Prediksi Harga')
+                    plt.title('Prediksi Harga XAU/USD (10 Hari ke Depan)', fontsize=20)
+                    plt.xlabel('Tanggal', fontsize=16)
+                    plt.ylabel('Harga XAU/USD', fontsize=16)
+                    plt.legend(fontsize=14)
+                    plt.grid(True)
 
-                st.pyplot(plt)
+                    st.pyplot(plt)
         else:
             st.error("Kolom 'Price' tidak ditemukan atau data 'Price' kosong.")
